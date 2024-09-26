@@ -2,7 +2,7 @@
   "name": "gerencia_produtos",
   "version": "0.0.1",
   "description": "A Quasar Project TCC",
-  "productName": "Syncord Store",
+  "productName": "Syncord Storage",
   "author": "Marcos Cordeiro Pires <marcosccpiress15@gmail.com>",
   "private": true,
   "scripts": {
