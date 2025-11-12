@@ -15,6 +15,8 @@
           <a href="/" style="text-decoration: none; color: #F2F2F2">Syncord Storage</a>
         </q-toolbar-title>
 
+        <q-btn flat round color="#F2F2F2" icon="person" :to="{ name: 'login'}"/>
+
         <!--<div>Quasar v{{ $q.version }}</div>-->
       </q-toolbar>
     </q-header>

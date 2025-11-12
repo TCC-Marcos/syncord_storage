@@ -6,6 +6,8 @@ const routes = [
       { path: '', name: 'home', component: () => import('pages/IndexPage.vue') },
       { path: 'estoque', name: 'estoque', component: () => import('pages/EstoqueProduto.vue') },
       { path: 'cadastro', name: 'cadastro', component: () => import('pages/ProdutosCadastro.vue') },
+      { path: 'cadastro/:id?', name: 'editar', component: () => import('pages/ProdutosCadastro.vue') },
+      { path: 'login', name: 'login', component: () => import('pages/TelaLogin.vue') },
       { path: 'usuarios', name: 'usuarios', component: () => import('pages/UsuariosCadastro.vue') }
     ]
   },

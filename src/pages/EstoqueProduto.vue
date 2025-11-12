@@ -1,108 +1,90 @@
 <template>
-    <div class="q-pa-md">
-      <h3>Estoque</h3>
-      <q-table
-        flat bordered
-        title="Produtos"
-        :rows="rows"
-        :columns="columns"
-        row-key="name"
-        :filter="filter"
-        binary-state-sort
-      >
-        <template v-slot:top-right>
-          <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar">
-            <template v-slot:append>
-              <q-icon name="search" />
+    <div class="flex q-pa-xl bg-grey-2" style="min-height: 100vh;">
+      <div class="column items-center" style="width: 100%;">
+        <div class="row justify-center q-mb-md">
+          <h3>Estoque</h3>
+        </div>
+        <div class="row justify-center" style="width: 100%;">
+          <q-table
+            flat bordered
+            title="Produtos"
+            :rows="rows"
+            :columns="columns"
+            row-key="name"
+            :filter="filter"
+            binary-state-sort
+            style="width: 100%; max-width: 90%; border-radius: 16px;"
+          >
+            <template v-slot:top-right>
+              <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar">
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
             </template>
-          </q-input>
-        </template>
-        <template v-slot:body-cell-actions="props">
-          <q-td :props="props" class="q-gutter-sm">
-            <q-btn glossy icon="delete" color="negative" dense size="sm" :to="{name: 'estoque'}" />
-            <q-btn glossy icon="edit" color="primary" dense size="sm" :to="{name: 'cadastro'}" />
-            <q-btn glossy icon="remove" color="black" dense size="sm" :to="{name: 'home'}" />
-          </q-td>
-        </template>
-      </q-table>
+            <template v-slot:body-cell-imagem="props">
+              <q-td :props="props">
+                <img :src="props.row.imagem" width="50" height="50" style="border-radius: 8px;" />
+              </q-td>
+            </template>
+            <template v-slot:body-cell-actions="props">
+              <q-td :props="props" class="q-gutter-sm">
+                <q-btn glossy icon="delete" color="negative" dense size="sm" @click="removeProduto(props.row.id)" />
+                <q-btn glossy icon="edit" color="primary" dense size="sm" :to="{name: 'editar', params: { id: props.row.id }}" />
+                <q-btn glossy icon="remove" color="black" dense size="sm" :to="{name: 'home'}" />
+              </q-td>
+            </template>
+          </q-table>
+        </div>
+      </div>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import produtosService from 'src/services/produtos'
 
 const columns = [
+  { name: 'imagem', align: 'center', label: 'Imagem', field: 'imagem' },
   {
     name: 'name',
     required: true,
     label: 'Descrição produto',
     align: 'left',
-    field: row => row.name,
+    field: 'descricao',
     format: val => `${val}`,
     sortable: true
   },
-  { name: 'preco', align: 'center', label: 'Valor', field: 'preco', sortable: true },
-  { name: 'estoque', label: 'Estoque', field: 'estoque' },
+  { name: 'preco', align: 'center', label: 'Valor', field: 'preco', format: val => `R$ ${val.toFixed(2).replace('.', ',')}`, sortable: true },
+  { name: 'estoque', label: 'Estoque', field: 'estoque', aling: 'center', sortable: true },
   { name: 'actions', label: 'Ações', field: 'actions', aling: 'right' }
-]
-
-const rows = [
-  {
-    id: 1,
-    name: 'Apple iPhone 15 256GB Preto 5G Tela 6,1" Câm. Traseira 48+12MP Frontal 12MP',
-    preco: 'R$ 5899,90',
-    estoque: 5
-  },
-  {
-    id: 2,
-    name: 'Processador AMD Ryzen 5 7600X 4.7GHz/ 5.3GHz Hexa-Core 38MB AM5 - 100-100000593WOF',
-    preco: 'R$ 1498,99',
-    estoque: 10
-  },
-  {
-    id: 3,
-    name: 'ROTEADOR TP-LINK AC1350 ARCHER C60',
-    preco: 'R$ 429,00',
-    estoque: 3
-  },
-  {
-    id: 4,
-    name: 'Sony Play Station 5 Com 2 controles',
-    preco: 'R$ 4499,00',
-    estoque: 2
-  },
-  {
-    id: 5,
-    name: 'Placa de Vídeo Gigabyte NVIDIA GeForce RTX 4060 Gaming OC, 8G, 8GB, GDDR6, DLSS, Ray Tracing',
-    preco: 'R$ 1959,99',
-    estoque: 0
-  },
-  {
-    id: 6,
-    name: 'Kingston Memória Ram Fury Renegade Rgb 1x16gb DDR5 7200mhz Colorido',
-    preco: 'R$ 719,99',
-    estoque: 10
-  },
-  {
-    id: 7,
-    name: 'Microsoft Xbox Series X 1TB Standard - Preto',
-    preco: 'R$ 4079,00',
-    estoque: 4
-  },
-  {
-    id: 8,
-    name: 'Controle Microsoft Xbox Carbon Black, Sem Fio, Para Xbox Series X e S, Preto',
-    preco: 'R$ 329,00',
-    estoque: 15
-  }
 ]
 
 export default {
   setup () {
+    const produtos = ref([])
+    const { list, remove } = produtosService()
+
+    onMounted(() => {
+      getProdutos()
+    })
+
+    const getProdutos = async () => {
+      const data = await list()
+      produtos.value = data
+      console.log(produtos.value)
+    }
+
+    const removeProduto = async (id) => {
+      await remove(id)
+      getProdutos()
+    }
+
     return {
       filter: ref(''),
       columns,
-      rows: ref(rows)
+      rows: ref(produtos),
+      removeProduto
     }
   }
 }
