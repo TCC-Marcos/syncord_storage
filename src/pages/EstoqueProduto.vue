@@ -42,6 +42,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useQuasar } from 'quasar' // 1. Importe o useQuasar
 import produtosService from 'src/services/produtos'
 
 const columns = [
@@ -56,12 +57,13 @@ const columns = [
     sortable: true
   },
   { name: 'preco', align: 'center', label: 'Valor', field: 'preco', format: val => `R$ ${val.toFixed(2).replace('.', ',')}`, sortable: true },
-  { name: 'estoque', label: 'Estoque', field: 'estoque', aling: 'center', sortable: true },
-  { name: 'actions', label: 'Ações', field: 'actions', aling: 'right' }
+  { name: 'estoque', label: 'Estoque', field: 'estoque', align: 'center', sortable: true },
+  { name: 'actions', label: 'Ações', field: 'actions', align: 'right' }
 ]
 
 export default {
   setup () {
+    const $q = useQuasar() // 2. Inicialize a variável do Quasar
     const produtos = ref([])
     const { list, remove } = produtosService()
 
@@ -75,9 +77,31 @@ export default {
       console.log(produtos.value)
     }
 
+    // 3. Atualize a função para chamar o $q.dialog
     const removeProduto = async (id) => {
-      await remove(id)
-      getProdutos()
+      $q.dialog({
+        title: 'Confirmação',
+        message: 'Tem certeza de que deseja excluir este produto?',
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        // O que acontece se o usuário clicar em "OK"
+        try {
+          await remove(id)
+          getProdutos()
+
+          // Opcional: Mostra um aviso de sucesso
+          $q.notify({
+            type: 'positive',
+            message: 'Produto removido com sucesso!'
+          })
+        } catch (error) {
+          $q.notify({
+            type: 'negative',
+            message: 'Erro ao remover produto.'
+          })
+        }
+      })
     }
 
     return {
