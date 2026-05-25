@@ -1,111 +1,128 @@
 <template>
-  <div class="flex flex-center q-pa-xl bg-grey-2" style="min-height: 100vh;">
-    <q-card class="q-pa-lg shadow-4" style="width: 100%; max-width: 87%; border-radius: 16px;">
-      <q-card-section>
-        <div class="row justify-between q-col-gutter-md">
-          <div class="col-md-11 text-h4 text-center q-mb-md">Cadastro de Produtos</div>
-          <div class="col md-1 text-right q-mb-md q-mx-md">
-            <q-btn
-              flat
-              dense
-              round
-              icon="list"
-              aria-label="Menu"
-              :to="{name: 'estoque'}"
-              size="xl"
-            />
+  <q-page class="flex flex-center bg-grey-2 q-pa-md q-pa-sm-xl">
+    <q-card class="q-pa-md q-pa-sm-lg shadow-2" style="width: 100%; max-width: 900px; border-radius: 16px;">
+
+      <q-card-section class="q-px-none q-pt-none">
+        <div class="row items-center justify-between no-wrap">
+          <div>
+            <h1 class="text-h5 text-sm-h4 text-weight-bold text-grey-9 q-ma-none">Cadastro de Produtos</h1>
+            <p class="text-caption text-grey-6 q-ma-none">Insira os detalhes do novo produto para o catálogo</p>
           </div>
+          <q-btn
+            flat
+            round
+            dense
+            color="primary"
+            icon="arrow_back"
+            :to="{ name: 'estoque' }"
+            size="lg"
+          >
+            <q-tooltip class="bg-primary">Voltar para o Estoque</q-tooltip>
+          </q-btn>
         </div>
-        <q-form ref="formRef" @submit="onSubmit" @reset="onReset" class="q-gutter-md">
+        <q-separator class="q-mt-md q-mb-lg" />
+      </q-card-section>
 
-          <!-- Linha 1 -->
+      <q-card-section class="q-pa-none">
+        <q-form ref="formRef" @submit="onSubmit" @reset="onReset" class="q-gutter-y-md">
+
           <div class="row q-col-gutter-md">
-            <q-input
-              filled
-              v-model="descricao"
-              label="Descrição do produto"
-              class="col-12 col-md-8"
-              :rules="[ val => val && val.length > 0 || 'Preencha esse campo']"
-            />
-            <q-input
-              filled
-              type="decimal"
-              v-model="preco"
-              label="Preço R$"
-              class="col-12 col-md-4"
-              :rules="[ val => val && val > 0 || 'Digite um valor válido']"
-            />
+            <div class="col-12 col-md-8">
+              <q-input
+                outlined
+                v-model="descricao"
+                label="Nome / Descrição do produto"
+                placeholder="Ex: Teclado Mecânico RGB"
+                :rules="[ val => val && val.trim().length > 0 || 'Preencha esse campo']"
+              />
+            </div>
+            <div class="col-12 col-md-4">
+              <q-input
+                outlined
+                type="number"
+                step="0.01"
+                v-model.number="preco"
+                label="Preço de Venda"
+                prefix="R$"
+                :rules="[ val => val !== null && val > 0 || 'Digite um valor maior que zero']"
+              />
+            </div>
           </div>
 
-          <!-- Linha 2 -->
           <div class="row q-col-gutter-md">
-            <q-input
-              filled
-              type="number"
-              v-model="estoque"
-              label="Estoque"
-              class="col-12 col-md-4"
-              :rules="[ val => val && val > 0 || 'Digite um valor válido']"
-            />
-            <q-select
-              filled
-              v-model="categoriaId"
-              :options="categorias"
-              label="Categoria"
-              class="col-12 col-md-8"
-            />
+            <div class="col-12 col-md-4">
+              <q-input
+                outlined
+                type="number"
+                v-model.number="estoque"
+                label="Estoque Inicial"
+                placeholder="0"
+                :rules="[ val => val !== null && val >= 0 || 'Digite um valor válido']"
+              />
+            </div>
+            <div class="col-12 col-md-8">
+              <q-select
+                outlined
+                v-model="categoriaId"
+                :options="categorias"
+                label="Categoria"
+                emit-value
+                map-options
+                :rules="[ val => !!val || 'Selecione uma categoria' ]"
+              />
+            </div>
           </div>
 
-          <!-- Linha 3 -->
-          <div class="row q-col-gutter-md">
-            <q-input
-              filled
-              v-model="observacao"
-              label="Observação"
-              type="textarea"
-              class="col-12"
-              :rules="[ val => val && val.length > 0 || 'Preencha esse campo']"
-            />
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-12">
+              <q-input
+                outlined
+                v-model="observacao"
+                label="Observações / Detalhes Técnicos"
+                type="textarea"
+                rows="3"
+              />
+            </div>
           </div>
 
-          <!-- Linha 4 (upload) -->
           <div class="row q-col-gutter-md">
-            <q-file
-              v-model="imagem"
-              standout
-              label="Imagem principal do produto"
-              class="col"
-              style="max-width: 100%;"
-            >
-              <template v-slot:prepend>
-                <q-icon name="attach_file" />
-              </template>
-            </q-file>
-            <q-file
-              v-model="imagens"
-              standout
-              label="Imagens do produto"
-              multiple
-              max-files="5"
-              class="col-10"
-              style="max-width: 100%;"
-            >
-              <template v-slot:prepend>
-                <q-icon name="attach_file" />
-              </template>
-            </q-file>
+            <div class="col-12 col-sm-6">
+              <q-file
+                outlined
+                v-model="imagem"
+                label="Imagem Principal (Capa)"
+                accept=".jpg, .jpeg, .png, .webp"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="image" color="primary" />
+                </template>
+              </q-file>
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-file
+                outlined
+                v-model="imagens"
+                label="Galeria de Fotos (Até 5 imagens)"
+                multiple
+                max-files="5"
+                accept=".jpg, .jpeg, .png, .webp"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="collections" color="primary" />
+                </template>
+              </q-file>
+            </div>
           </div>
 
-          <!-- Botões -->
-          <div class="row justify-end q-mt-md">
-            <q-btn label="Limpar" type="reset" color="negative" flat />
-            <q-btn label="Enviar" type="submit" color="primary" class="q-mr-sm" />
+          <div class="row justify-end q-gutter-sm q-pt-md">
+            <q-btn label="Limpar" type="reset" color="grey-7" flat class="q-px-lg" />
+            <q-btn label="Salvar" type="submit" color="primary" unevaluated class="q-px-xl text-weight-bold" />
           </div>
 
         </q-form>
       </q-card-section>
     </q-card>
-  </div>
+  </q-page>
 </template>
 
 <script>

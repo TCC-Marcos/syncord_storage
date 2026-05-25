@@ -1,110 +1,142 @@
 <template>
-  <div class="flex flex-center q-pa-xl bg-grey-2" style="min-height: 100vh;">
-    <q-card class="q-pa-md shadow-4" style="width: 100%; max-width: 50%; border-radius: 16px;">
-      <q-card-section>
-        <div class="row justify-between q-col-gutter-md">
-          <div class="col-md-12 text-h4 text-center q-mb-md">Cadastro Usuários</div>
+<q-page class="flex flex-center bg-grey-2 q-pa-md q-pa-sm-xl">
+    <q-card class="q-pa-md q-pa-sm-lg shadow-2" style="width: 100%; max-width: 750px; border-radius: 16px;">
+
+      <q-card-section class="q-px-none q-pt-none">
+        <div class="row items-center justify-between no-wrap">
+          <div>
+            <h1 class="text-h5 text-sm-h4 text-weight-bold text-grey-9 q-ma-none">Cadastro de Usuários</h1>
+            <p class="text-caption text-grey-6 q-ma-none">Registre novos clientes ou operadores no sistema</p>
+          </div>
+          <q-btn
+            flat
+            round
+            dense
+            color="primary"
+            icon="arrow_back"
+            :to="{ name: 'home' }"
+            size="lg"
+          >
+            <q-tooltip class="bg-primary">Voltar para o Painel</q-tooltip>
+          </q-btn>
         </div>
+        <q-separator class="q-mt-md q-mb-lg" />
+      </q-card-section>
+
+      <q-card-section class="q-pa-none">
         <q-form
           @submit="onSubmit"
           @reset="onReset"
-          class="q-gutter-md"
+          class="q-gutter-y-md"
         >
-          <!-- Linha 1-->
-          <div class="row q-col-gutter-xs justify-center">
-            <q-input
-            filled
-            v-model="name"
-            label="Nome Completo"
-            lazy-rules
-            class="col-lg-6 col-xs-6"
-            :rules="[ val => val && val.length > 0 || 'Campo obrigatorio' ]"
-            />
-            <q-input filled v-model="dataNascimento" label="Data nascimento" mask="date" lazy-rules
-              class="col-lg-4 col-xs-4" :rules="[val => !!val || 'Campo obrigatorio']">
-              <template v-slot:append>
-                <q-icon name="event">
-                  <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                    <q-date v-model="dataNascimento">
-                      <div class="row items-center justify-end">
-                        <q-btn v-close-popup label="Fechar" color="primary" flat />
-                      </div>
-                    </q-date>
-                  </q-popup-proxy>
-                </q-icon>
-              </template>
-            </q-input>
-          </div>
-          <!-- Linha 2 -->
-          <div class="row q-col-gutter-xs justify-center">
-            <q-input
-              filled
-              v-model="cpf"
-              label="CPF"
-              lazy-rules
-              mask="###.###.###-##"
-              class="col-lg-5 col-xs-5"
-              :rules="[ validarCPF ]"
-            />
-            <q-input
-              filled
-              v-model="telefone"
-              label="Telefone"
-              mask="(##) # ####-####"
-              lazy-rules
-              class="col-lg-5 col-xs-5"
-              :rules="[ val => val && val.length > 0 || 'Campo obrigatorio' ]"
-            />
-          </div>
-          <!-- Linha 3 -->
-          <div class="row q-col-gutter-xs justify-center">
-            <q-input
-              filled
-              v-model="email"
-              label="E-mail"
-              lazy-rules
-              class="col-lg-10 col-xs-10"
-              :rules="[
-                val => val && val.length > 0 || 'Campo obrigatorio',
-                val => val.includes('@') || 'E-mail inválido',
-                val => val.includes('.') || 'E-mail inválido',
-              ]"
-            />
-          </div>
-          <!-- Linha 4 -->
-          <div class="row q-col-gutter-xs justify-center">
-            <q-input
-              filled
-              v-model="senha"
-              label="Senha"
-              lazy-rules
-              type="password"
-              class="col-lg-5 col-xs-5"
-              :rules="[ val => val && val.length > 0 || 'Campo obrigatorio' ]"
-            />
-            <q-input
-              filled
-              v-model="senhaConfirmacao"
-              label="Confirma senha"
-              lazy-rules
-              type="password"
-              class="col-lg-5 col-xs-5"
-              :rules="[
-                val => val && val.length > 0 || 'Campo obrigatorio',
-                val => val === senha || 'Senhas não são iguais'
-
-              ]"
-            />
-          </div>
-          <!-- Botões -->
-          <div class="row justify-end">
-              <q-btn label="Limpar" type="reset" color="negative" flat class="q-ml-sm" />
-              <q-btn label="Enviar" type="submit" color="primary"/>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-7 col-md-8">
+              <q-input
+                outlined
+                v-model="name"
+                label="Nome Completo"
+                lazy-rules
+                :rules="[ val => val && val.trim().length > 0 || 'Campo obrigatório' ]"
+              />
             </div>
+            <div class="col-12 col-sm-5 col-md-4">
+              <q-input
+                outlined
+                v-model="dataNascimento"
+                label="Data de Nascimento"
+                mask="##/##/####"
+                lazy-rules
+                :rules="[val => !!val || 'Campo obrigatório']"
+              >
+                <template v-slot:append>
+                  <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                      <q-date v-model="dataNascimento" mask="DD/MM/YYYY">
+                        <div class="row items-center justify-end">
+                          <q-btn v-close-popup label="Fechar" color="primary" flat />
+                        </div>
+                      </q-date>
+                    </q-popup-proxy>
+                  </q-icon>
+                </template>
+              </q-input>
+            </div>
+          </div>
+
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="cpf"
+                label="CPF"
+                lazy-rules
+                mask="###.###.###-##"
+                :rules="[ validarCPF ]"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="telefone"
+                label="Telefone"
+                mask="(##) # ####-####"
+                lazy-rules
+                :rules="[ val => val && val.length > 0 || 'Campo obrigatório' ]"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <q-input
+                outlined
+                v-model="email"
+                label="E-mail"
+                type="email"
+                lazy-rules
+                :rules="[
+                  val => val && val.length > 0 || 'Campo obrigatório',
+                  val => val.includes('@') && val.includes('.') || 'E-mail inválido'
+                ]"
+              />
+            </div>
+          </div>
+
+          <div class="row q-col-gutter-md q-mb-sm">
+            <div class="col-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="senha"
+                label="Senha"
+                lazy-rules
+                type="password"
+                :rules="[ val => val && val.length > 0 || 'Campo obrigatório' ]"
+              />
+            </div>
+            <div class="col-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="senhaConfirmacao"
+                label="Confirmar Senha"
+                lazy-rules
+                type="password"
+                :rules="[
+                  val => val && val.length > 0 || 'Campo obrigatório',
+                  val => val === senha || 'As senhas não são iguais'
+                ]"
+              />
+            </div>
+          </div>
+
+          <div class="row justify-end q-gutter-sm q-pt-md">
+            <q-btn label="Limpar" type="reset" color="grey-7" flat class="q-px-lg" />
+            <q-btn label="Cadastrar Usuário" type="submit" color="primary" unevaluated class="q-px-xl text-weight-bold" />
+          </div>
+
         </q-form>
       </q-card-section>
     </q-card>
-  </div>
+  </q-page>
 </template>
 <script>
 import usuariosService from 'src/services/usuarios'
@@ -152,10 +184,13 @@ export default {
       return true
     }
     function formatDateToIsoDateOnly (value) {
-      // aceita Date, timestamp, ou string; cria Date e retorna yyyy-MM-dd
-      const d = new Date(value)
-      if (Number.isNaN(d.getTime())) return value // retorna original se inválido
-      return d.toISOString().split('T')[0] // "yyyy-mm-dd"
+      if (!value) return null
+
+      const [day, month, year] = value.split('/')
+
+      if (!day || !month || !year) return value
+
+      return `${year}-${month}-${day}`
     }
 
     function onlyDigits (str) {

@@ -1,43 +1,110 @@
 <template>
-    <div class="flex q-pa-xl bg-grey-2" style="min-height: 100vh;">
-      <div class="column items-center" style="width: 100%;">
-        <div class="row justify-center q-mb-md">
-          <h3>Estoque</h3>
-        </div>
-        <div class="row justify-center" style="width: 100%;">
-          <q-table
-            flat bordered
-            title="Produtos"
-            :rows="rows"
-            :columns="columns"
-            row-key="name"
-            :filter="filter"
-            binary-state-sort
-            style="width: 100%; max-width: 90%; border-radius: 16px;"
-          >
-            <template v-slot:top-right>
-              <q-input borderless dense debounce="300" v-model="filter" placeholder="Buscar">
-                <template v-slot:append>
-                  <q-icon name="search" />
-                </template>
-              </q-input>
-            </template>
-            <template v-slot:body-cell-imagem="props">
-              <q-td :props="props">
-                <img :src="props.row.imagem" width="50" height="50" style="border-radius: 8px;" />
-              </q-td>
-            </template>
-            <template v-slot:body-cell-actions="props">
-              <q-td :props="props" class="q-gutter-sm">
-                <q-btn glossy icon="delete" color="negative" dense size="sm" @click="removeProduto(props.row.id)" />
-                <q-btn glossy icon="edit" color="primary" dense size="sm" :to="{name: 'editar', params: { id: props.row.id }}" />
-                <q-btn glossy icon="remove" color="black" dense size="sm" :to="{name: 'home'}" />
-              </q-td>
-            </template>
-          </q-table>
-        </div>
-      </div>
-    </div>
+  <q-page class="flex flex-center bg-grey-2 q-pa-md q-pa-sm-xl">
+      <!-- Card/Container Principal para abraçar a tabela e o topo -->
+      <q-card class="q-pa-md q-pa-sm-lg shadow-2" style="width: 100%; max-width: 1200px; border-radius: 16px;">
+
+        <!-- Cabeçalho do Estoque -->
+        <q-card-section class="q-px-none q-pt-none q-mb-md">
+          <div class="row items-center justify-between no-wrap">
+            <div>
+              <h1 class="text-h5 text-sm-h4 text-weight-bold text-grey-9 q-ma-none">Controle de Estoque</h1>
+              <p class="text-caption text-grey-6 q-ma-none">Visualize, edite e gerencie o catálogo de produtos ativos</p>
+            </div>
+            <!-- Botão de Atalho para Novo Cadastro -->
+            <q-btn
+              color="primary"
+              icon="add"
+              label="Novo Produto"
+              :to="{ name: 'cadastro' }"
+              class="text-weight-bold q-px-md"
+              unevaluated
+            />
+          </div>
+          <q-separator class="q-mt-md" />
+        </q-card-section>
+
+        <!-- Tabela Restruturada -->
+        <q-table
+          flat
+          bordered
+          title="Lista de Produtos"
+          title-class="text-subtitle1 text-weight-bold text-grey-8"
+          :rows="rows"
+          :columns="columns"
+          row-key="id"
+          :filter="filter"
+          binary-state-sort
+          class="no-shadow border-radius-table"
+        >
+          <!-- Topo da Tabela (Barra de Busca) -->
+          <template v-slot:top-right>
+            <q-input
+              outlined
+              dense
+              debounce="300"
+              v-model="filter"
+              placeholder="Buscar produto..."
+              style="width: 250px;"
+            >
+              <template v-slot:append>
+                <q-icon name="search" color="grey-6" />
+              </template>
+            </q-input>
+          </template>
+
+          <!-- Renderização da Imagem -->
+          <template v-slot:body-cell-imagem="props">
+            <q-td :props="props">
+              <q-avatar rounded size="48px" class="bg-grey-3">
+                <img :src="props.row.imagem || 'https://cdn.quasar.dev/img/avatar.png'" style="object-fit: cover;" />
+              </q-avatar>
+            </q-td>
+          </template>
+
+          <!-- Renderização das Ações (Botões Modernizados) -->
+          <template v-slot:body-cell-actions="props">
+            <q-td :props="props" class="q-gutter-x-sm">
+              <!-- Editar -->
+              <q-btn
+                flat
+                round
+                icon="edit"
+                color="primary"
+                size="sm"
+                :to="{ name: 'editar', params: { id: props.row.id } }"
+              >
+                <q-tooltip>Editar Produto</q-tooltip>
+              </q-btn>
+
+              <!-- Deletar -->
+              <q-btn
+                flat
+                round
+                icon="delete"
+                color="negative"
+                size="sm"
+                @click="removeProduto(props.row.id)"
+              >
+                <q-tooltip>Excluir Produto</q-tooltip>
+              </q-btn>
+
+              <!-- Voltar/Home -->
+              <q-btn
+                flat
+                round
+                icon="home"
+                color="grey-7"
+                size="sm"
+                :to="{ name: 'home' }"
+              >
+                <q-tooltip>Ir para o Painel</q-tooltip>
+              </q-btn>
+            </q-td>
+          </template>
+        </q-table>
+
+      </q-card>
+ </q-page>
 </template>
 
 <script>
@@ -113,3 +180,11 @@ export default {
   }
 }
 </script>
+  <style scoped>
+  .style-container {
+    width: 100%;
+  }
+  .border-radius-table {
+    border-radius: 8px;
+  }
+</style>

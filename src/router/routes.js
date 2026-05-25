@@ -8,7 +8,8 @@ const routes = [
       { path: 'cadastro', name: 'cadastro', component: () => import('pages/ProdutosCadastro.vue') },
       { path: 'cadastro/:id?', name: 'editar', component: () => import('pages/ProdutosCadastro.vue') },
       { path: 'login', name: 'login', component: () => import('pages/TelaLogin.vue') },
-      { path: 'usuarios', name: 'usuarios', component: () => import('pages/UsuariosCadastro.vue') }
+      { path: 'usuarios', name: 'usuarios', component: () => import('pages/UsuariosCadastro.vue') },
+      { path: 'pedidos', name: 'pedidos', component: () => import('pages/Pedidos.vue') }
     ]
   },
   // Always leave this as last one,
