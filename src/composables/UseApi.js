@@ -69,5 +69,36 @@ export default function useApi (url) {
     }
   }
 
-  return { list, post, uploads, upload, update, remove }
+  const listById = async (id) => {
+    try {
+      const { data } = await api.get(`${url}/${id}`)
+      console.log(data)
+      return data
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  const listImages = async (id) => {
+    try {
+      const { data } = await api.get(`${url}/${id}/download`)
+      console.log(data)
+      return data
+    } catch (error) {
+      throw new Error(error)
+    }
+  }
+
+  const updatePassword = async (id, senha) => {
+    return api.put(`${url}/${id}/senha`, {
+      senha
+    })
+  }
+
+  const login = async (form) => {
+    const { data } = await api.post(`${url}/login`, form)
+    return data
+  }
+
+  return { list, post, uploads, upload, update, remove, listById, listImages, updatePassword, login }
 }

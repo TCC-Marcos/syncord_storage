@@ -69,13 +69,13 @@
 
         <!-- Card: Pedidos (Novo) -->
       <div class="col-12 col-sm-6 col-md-3">
-        <q-card class="my-card text-center q-pa-md hover-scale cursor-pointer" @click="$router.push({ name: 'pedidos' })">
+        <q-card class="my-card text-center q-pa-md hover-scale cursor-pointer" @click="$router.push({ name: 'promocoes' })">
           <q-card-section class="bg-grey-3 text-black-10 rounded-borders q-pa-md inline-block">
             <q-icon name="discord" size="xl" />
           </q-card-section>
 
           <q-card-section class="q-pt-md">
-            <div class="text-h6 text-weight-bold text-grey-9">Mensagens</div>
+            <div class="text-h6 text-weight-bold text-grey-9">Mensagens/Promoções</div>
             <div class="text-caption text-grey-6">Gerencie o envio de mensagens</div>
           </q-card-section>
         </q-card>
@@ -87,10 +87,16 @@
 
 <script>
 import { defineComponent } from 'vue'
+import { useAuthStore } from 'src/stores/auth'
 
 export default defineComponent({
   name: 'IndexPage'
 })
+
+const authStore = useAuthStore()
+
+console.log(authStore.isLoggedIn, 'IndexPage carregada')
+
 </script>
 
 <style scoped>

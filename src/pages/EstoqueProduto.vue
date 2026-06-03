@@ -56,7 +56,7 @@
           <template v-slot:body-cell-imagem="props">
             <q-td :props="props">
               <q-avatar rounded size="48px" class="bg-grey-3">
-                <img :src="props.row.imagem || 'https://cdn.quasar.dev/img/avatar.png'" style="object-fit: cover;" />
+                <img :src="props.row.imagem || ''" style="object-fit: cover;" />
               </q-avatar>
             </q-td>
           </template>
@@ -89,7 +89,7 @@
               </q-btn>
 
               <!-- Voltar/Home -->
-              <q-btn
+              <!-- <q-btn
                 flat
                 round
                 icon="home"
@@ -98,7 +98,7 @@
                 :to="{ name: 'home' }"
               >
                 <q-tooltip>Ir para o Painel</q-tooltip>
-              </q-btn>
+              </q-btn> -->
             </q-td>
           </template>
         </q-table>

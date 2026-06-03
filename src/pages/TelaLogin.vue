@@ -18,8 +18,6 @@
           <div class="row q-gutter-xs justify-end">
             <q-btn label="Entrar" class="q-mt-lg" type="submit"
                    style="background-color: #0597F2; color: #F2F2F2"/>
-            <q-btn label="Criar conta" class="q-mt-lg" :to="{name: 'singUp'}"
-                   style="background-color: #fff; color: #000"/>
           </div>
         </q-form>
       </div>

@@ -5,7 +5,9 @@
       <q-card-section class="q-px-none q-pt-none">
         <div class="row items-center justify-between no-wrap">
           <div>
-            <h1 class="text-h5 text-sm-h4 text-weight-bold text-grey-9 q-ma-none">Cadastro de Usuários</h1>
+            <h1 class="text-h5 text-sm-h4 text-weight-bold text-grey-9 q-ma-none">
+              {{ isEditing ? 'Editar Usuário' : 'Cadastro de Usuários' }}
+            </h1>
             <p class="text-caption text-grey-6 q-ma-none">Registre novos clientes ou operadores no sistema</p>
           </div>
           <q-btn
@@ -14,7 +16,7 @@
             dense
             color="primary"
             icon="arrow_back"
-            :to="{ name: 'home' }"
+            @click="$router.push({ name: 'usuarios' })"
             size="lg"
           >
             <q-tooltip class="bg-primary">Voltar para o Painel</q-tooltip>
@@ -107,22 +109,24 @@
               <q-input
                 outlined
                 v-model="senha"
-                label="Senha"
+                :label="isEditing ? 'Nova Senha (opcional)' : 'Senha'"
                 lazy-rules
                 type="password"
-                :rules="[ val => val && val.length > 0 || 'Campo obrigatório' ]"
+                :rules="[
+                  val => isEditing || (val && val.length > 0) || 'Campo obrigatório'
+                ]"
               />
             </div>
             <div class="col-12 col-sm-6">
               <q-input
                 outlined
                 v-model="senhaConfirmacao"
-                label="Confirmar Senha"
+                :label="isEditing ? 'Confirmar Nova Senha' : 'Confirmar Senha'"
                 lazy-rules
                 type="password"
                 :rules="[
-                  val => val && val.length > 0 || 'Campo obrigatório',
-                  val => val === senha || 'As senhas não são iguais'
+                  val => isEditing || (val && val.length > 0) || 'Campo obrigatório',
+                  val => !senha || val === senha || 'As senhas não são iguais'
                 ]"
               />
             </div>
@@ -130,7 +134,12 @@
 
           <div class="row justify-end q-gutter-sm q-pt-md">
             <q-btn label="Limpar" type="reset" color="grey-7" flat class="q-px-lg" />
-            <q-btn label="Cadastrar Usuário" type="submit" color="primary" unevaluated class="q-px-xl text-weight-bold" />
+            <q-btn
+              :label="isEditing ? 'Salvar Alterações' : 'Cadastrar Usuário'"
+              type="submit"
+              color="primary"
+              class="q-px-xl text-weight-bold"
+            />
           </div>
 
         </q-form>
@@ -140,13 +149,22 @@
 </template>
 <script>
 import usuariosService from 'src/services/usuarios'
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { useRoute, useRouter } from 'vue-router'
 
 export default {
   setup () {
-    const { post } = usuariosService()
+    const { post, update, listById, updatePassword } = usuariosService()
+
     const $q = useQuasar()
+    const route = useRoute()
+    const router = useRouter()
+
+    const usuarioId = ref(route.params.id || null)
+
+    const isEditing = computed(() => !!usuarioId.value)
+
     const name = ref(null)
     const dataNascimento = ref(null)
     const cpf = ref(null)
@@ -154,13 +172,13 @@ export default {
     const email = ref(null)
     const senha = ref(null)
     const senhaConfirmacao = ref(null)
+
     function validarCPF (val) {
       if (!val) return 'Campo obrigatório'
 
       const cpf = val.replace(/\D/g, '')
 
       if (cpf.length !== 11) return 'CPF inválido'
-
       if (/^(\d)\1{10}$/.test(cpf)) return 'CPF inválido'
 
       let soma = 0
@@ -169,6 +187,7 @@ export default {
       for (let i = 1; i <= 9; i++) {
         soma += parseInt(cpf.substring(i - 1, i)) * (11 - i)
       }
+
       resto = (soma * 10) % 11
       if (resto === 10 || resto === 11) resto = 0
       if (resto !== parseInt(cpf.substring(9, 10))) return 'CPF inválido'
@@ -177,56 +196,129 @@ export default {
       for (let i = 1; i <= 10; i++) {
         soma += parseInt(cpf.substring(i - 1, i)) * (12 - i)
       }
+
       resto = (soma * 10) % 11
       if (resto === 10 || resto === 11) resto = 0
       if (resto !== parseInt(cpf.substring(10, 11))) return 'CPF inválido'
 
       return true
     }
+
     function formatDateToIsoDateOnly (value) {
       if (!value) return null
 
       const [day, month, year] = value.split('/')
 
-      if (!day || !month || !year) return value
-
       return `${year}-${month}-${day}`
+    }
+
+    function formatDateToBR (value) {
+      if (!value) return null
+
+      const [year, month, day] = value.split('-')
+
+      return `${day}/${month}/${year}`
     }
 
     function onlyDigits (str) {
       return String(str || '').replace(/\D+/g, '')
     }
 
-    const cadastroUsuarios = async () => {
+    function formatCPF (value) {
+      if (!value) return null
+
+      return value.replace(
+        /(\d{3})(\d{3})(\d{3})(\d{2})/,
+        '$1.$2.$3-$4'
+      )
+    }
+
+    function formatPhone (value) {
+      if (!value) return null
+
+      return value.replace(
+        /(\d{2})(\d{5})(\d{4})/,
+        '($1) $2-$3'
+      )
+    }
+
+    const loadUsuario = async () => {
+      if (!isEditing.value) return
+
       try {
-        const usuario = {
+        $q.loading.show()
+
+        const usuario = await listById(usuarioId.value)
+
+        name.value = usuario.nome
+        email.value = usuario.email
+        dataNascimento.value = formatDateToBR(usuario.dataNascimento)
+        cpf.value = formatCPF(usuario.cpf)
+        telefone.value = formatPhone(usuario.telefone)
+      } catch (error) {
+        console.error(error)
+
+        $q.notify({
+          message: 'Erro ao carregar usuário',
+          color: 'negative'
+        })
+      } finally {
+        $q.loading.hide()
+      }
+    }
+
+    const save = async () => {
+      try {
+        $q.loading.show()
+
+        const payload = {
+          id: usuarioId.value,
           nome: name.value,
           email: email.value,
           dataNascimento: formatDateToIsoDateOnly(dataNascimento.value),
           telefone: onlyDigits(telefone.value),
           cpf: onlyDigits(cpf.value),
-          senha: senha.value
+          discordId: null
         }
 
-        const usuarioCadastrado = await post(usuario)
-        console.log(usuarioCadastrado)
+        if (isEditing.value) {
+          await update(payload)
 
-        $q.notify({
-          message: 'Produto cadastrado com sucesso!',
-          color: 'positive'
-        })
+          if (senha.value) {
+            await updatePassword(usuarioId.value, senha.value)
+          }
 
-        onReset()
+          $q.notify({
+            message: 'Usuário atualizado com sucesso!',
+            color: 'positive'
+          })
+        } else {
+          await post({
+            ...payload,
+            senha: senha.value
+          })
+
+          $q.notify({
+            message: 'Usuário cadastrado com sucesso!',
+            color: 'positive'
+          })
+        }
+
+        router.push({ name: 'usuarios' })
       } catch (error) {
         console.error(error)
+
         $q.notify({
-          message: 'Erro ao cadastrar produto',
+          message: 'Erro ao salvar usuário',
           color: 'negative'
         })
+      } finally {
+        $q.loading.hide()
       }
     }
+
     const onSubmit = async () => {
-      await cadastroUsuarios()
+      await save()
     }
 
     const onReset = () => {
@@ -239,7 +331,12 @@ export default {
       senhaConfirmacao.value = null
     }
 
+    onMounted(() => {
+      loadUsuario()
+    })
+
     return {
+      isEditing,
       name,
       dataNascimento,
       cpf,
@@ -249,7 +346,6 @@ export default {
       senhaConfirmacao,
       validarCPF,
       onSubmit,
-      cadastroUsuarios,
       onReset
     }
   }
